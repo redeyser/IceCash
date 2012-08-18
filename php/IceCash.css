@@ -1,0 +1,111 @@
+/*
+ IceCash HEAD CSS
+ BY RedEyser
+*/
+body {
+	margin: 5px; 	padding: 5px;
+	font: normal 10pt serif;
+	color: #000;
+	text-align: left;
+	background: #80A0FF;
+}
+
+
+.link:hover {
+	text-decoration: none;	
+	background-color: #FFFFFF;
+}
+
+.tables {
+	padding: 5px;
+    margin-top: 10px;
+}
+
+.tab {
+    font: normal 8pt serif;
+    color: #000;
+    margin-top: 10px;
+	padding: 5px;
+	border: solid 1px #00F;
+    width: 400px;
+}
+th { background-color: #66F;
+     font: normal 8pt serif; 
+     color: #FFF;
+     }
+
+.text {
+    font: normal 12pt serif;
+	color:#FFF; 
+}
+
+.mark {
+     font: normal 14pt "Free Chancery", serif;
+     color:#2133DA; 
+}
+
+
+.btn {
+     font: normal 8pt serif;
+     text-align: center;
+     color:#FFF;
+     border: solid 1px #000;
+     background-color:#228; 
+     width: 60px;
+}.warning {
+     font: normal 10pt serif;
+     color:#522;
+     border: solid 1px #777; 
+     background-color:#EEAAEE; 
+     width: 390px;
+     padding: 5px;
+     text-align: left;
+     margin-top: 10px;
+}
+.info {
+     font: normal 10pt serif;
+     color:#000;
+     border: solid 1px #777; 
+     background-color:#AAAADD; 
+     width: 390px;
+     padding: 5px;
+     text-align: left;
+     margin-top: 10px;
+}
+.active {
+     font: normal 8pt serif;
+     color:#000;
+     background-color:#DDDDDD; 
+}
+
+
+h1, h2, h3 {
+	font: "Free Chancery",Georgia,"Times new roman",serif;
+	color:#101055;
+    margin-top:0;margin-bottom:0;margin-left:0;
+}
+
+.big {
+	font: normal 16pt "Free Chancery",Georgia,"Times new roman",serif;
+	color:#101055;
+    margin-top:0;margin-bottom:0;margin-left:0;
+}
+
+strong {
+    color:#902020;
+}
+
+header {
+	color:#202020;
+	font: "Free Chancery", "Times New Roman", Times, serif;
+	margin-left: 10px;
+}
+
+.link { 
+     color:#501050; 
+ }
+.small { 
+     font: normal 8pt serif;
+     text-decoration: none;	
+ }
+
