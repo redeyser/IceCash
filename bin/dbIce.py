@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8
+# version 1.0.9
 import my
 import os
 import re
@@ -28,8 +29,12 @@ class trsc(my.table):
     def query_add(self,values):
         struct=self.set_values(self.record,values)
         return self.query_insert(struct)
+
     def query_select_from(self,id_trsc,nkassa):
-        return self.query_select(self.record_unload)+" where idtrsc>"+id_trsc+" and nkassa="+nkassa
+        return self.query_select(self.record_unload)+" where idtrsc>"+id_trsc+" and nkassa="+nkassa+" order by nkassa,date,time,idtrsc"
+
+    def query_last_trsc(self,nkassa):
+        return self.query_select(['type','idtrsc','date','time'])+" where nkassa="+nkassa+" order by date desc,time desc,idtrsc desc limit 1"
 
 class price(my.table):
     def __init__ (self,dbname):
@@ -89,6 +94,28 @@ class discount_card(my.table):
         struct=self.set_values(self.record,values)
         return self.query_insert(struct)
 
+class sets(my.table):
+    def __init__ (self,dbname):
+        my.table.__init__(self,dbname)
+        self.addfield('name','s')
+        self.addfield('value','s')
+
+class actions(my.table):
+    def __init__ (self,dbname):
+        my.table.__init__(self,dbname)
+        self.addfield('idp','d')
+        self.addfield('idprice','d')
+        self.addfield('idt','d')
+        self.addfield('count','f')
+        self.addfield('countplus','f')
+        self.addfield('idtadd','d')
+        self.addfield('countadd','d')
+        self.addfield('name','s')
+
+    def query_add(self,values):
+        struct=self.set_all_values(values)
+        return self.query_insert(struct)
+
 class db(my.db):
     def __init__ (self):
         my.db.__init__(self,'IceCash','localhost','icecash','icecash1024')
@@ -96,6 +123,8 @@ class db(my.db):
         self.table_price=price('price')
         self.table_price_shk=price_shk('price_shk')
         self.table_discount_card=discount_card('discount_card')
+        self.table_sets=sets('sets')
+        self.table_actions=actions('actions')
 
     def load_price(self,fname):
         try:
@@ -150,14 +179,31 @@ class db(my.db):
         os.remove(fname);
         return 0
 
+    def load_actions(self,fname):
+        try:
+            f = open(fname,'r')
+        except:
+            return 1
+        print "dbIce:clear_actions:",self.clear_actions()
+        for line in f.readlines():
+            if line=='':
+                continue
+            arr=line.split(';')
+            if len(arr)>=2:
+                self.add_actions(arr)
+        f.close()
+        os.remove(fname);
+        return 0
+
     def unload_trsc(self,fname,id_trsc,nkassa):
         try:
             f = open(fname,'w')
+            t = self.get(self.table_trsc.query_select_from(id_trsc,nkassa))
         except:
             return 1
+
         f.write("#\r\n1\r\n0\r\n");
-        print self.table_trsc.query_select_from(id_trsc,nkassa)
-        t = self.get(self.table_trsc.query_select_from(id_trsc,nkassa))
+
         for line in t:
             rec=[]
             for i in line:
@@ -174,6 +220,9 @@ class db(my.db):
 
     def add_discount(self,values):
         return self.run(self.table_discount_card.query_add(values))
+
+    def add_actions(self,values):
+        return self.run(self.table_actions.query_add(values))
 
     def add_price(self,values):
         return self.run(self.table_price.query_add(values))
@@ -195,24 +244,37 @@ class db(my.db):
             n=d
         return n
 
+    #Поиск по основному штрихкоду
     def find_price_shk(self,code):
         r=self.get(self.table_price.query_find('shk',code))
         if not len(r):
-            n=self.get("select * from price_shk where shk=%s" % code)
-            if not len(n):
-                return []
-            r=self.get(self.table_price.query_find('id',n[0][0]))
-            if not len(r):
-                return []
-            d=["%s" % v for v in r[0]]
-            d[1:3]=n[0][1:3]
-            #d[2]=d[2].encode('utf8')
+            d=[]
             return d
         else:
             d=["%s" % v for v in r[0]]
-            #d[2]=d[2].encode('utf8')
-            n=d
-        return n
+        return d
+
+    #Выборка по дополнительным штрихкодам
+    def find_price_shks(self,code):
+        r=self.get("select * from price_shk where shk=%s" % (code))
+        if not len(r):
+            return []
+        d=[]
+        for rec in r:
+            line=["%s" % v for v in rec]
+            d.append(line)
+        return d
+
+    #Выборка подобных
+    def find_price_likes(self,like):
+        r=self.get("select * from price where lower(name) like('%"+str(like)+"%')")
+        if not len(r):
+            return []
+        d=[]
+        for rec in r:
+            line=["%s" % v for v in rec]
+            d.append(line)
+        return d
 
     def clear_price(self):
         self.run('delete from price_shk')
@@ -220,6 +282,9 @@ class db(my.db):
 
     def clear_discount(self):
         return self.run('delete from discount_card')
+
+    def clear_actions(self):
+        return self.run('delete from actions')
 
     def find_discount_card(self,card):
         r=self.get(self.table_discount_card.query_find(card))
@@ -231,5 +296,18 @@ class db(my.db):
             #d[3]=d[3].encode('utf8')
             n=d
         return n
-    
+
+    def getsets(self):
+        r=self.get(self.table_sets.query_all_select())
+        rsets={}
+        for line in r:
+            rsets[line[0]]=line[1]
+        return rsets 
+
+    def last_trsc_type(self,nkassa):
+        t = self.get(self.table_trsc.query_last_trsc(nkassa))
+        if len(t):
+            return t[0][0]
+        else:
+            return 0            
 

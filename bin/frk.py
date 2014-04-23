@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
-# frk object v 1.0
+# frk object v 1.2.007
 import kkmdrv
 import serial
 import time
@@ -82,6 +82,8 @@ class frk:
             return self.cancelCheck()
         if cmd=='repeat_check':
             return self.repeatDoc()
+        if cmd=='roll':
+            return self.roll()
         if cmd=='open_box':
             return self.openbox()
         if cmd=='continue':
@@ -131,7 +133,7 @@ class frk:
 
     def shortStatusRequest(self):
         try:
-            self.status_short==self.kkm.shortStatusRequest()
+            self.status_short=self.kkm.shortStatusRequest()
         except:
             err=const_error
             self._status_error()
@@ -303,6 +305,15 @@ class frk:
     def openbox(self):
         try:
             err=self.kkm.openbox()
+            self._status_ready()
+        except:
+            err=const_error
+            self._status_error()
+        return err
+
+    def roll(self):
+        try:
+            err=self.kkm.roll()
             self._status_ready()
         except:
             err=const_error

@@ -8,11 +8,13 @@
 	$result=array();
   	$res = mysql_query($q) or die(mysql_error());
   	return $res;
-  };function mysqlquery($q) {
+  };
+  function mysqlquery($q) {
+    //echo "$q";
 	$result=array();
   	$res = mysql_query($q) or die(mysql_error());
-	while ($row=mysql_fetch_array($res)) { $result[]=$row; }
-	mysql_free_result($res);
+	    while ($row=mysql_fetch_array($res)) { $result[]=$row; }
+	    mysql_free_result($res);
   	return $result;
   };
   function mysqlqueryIDarray($q) {

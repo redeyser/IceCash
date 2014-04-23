@@ -1,5 +1,6 @@
 <?php
 # SESSION START
+# version 1.3.008
 session_start();
 # --------------------------------
 # INCLUDE
@@ -18,16 +19,49 @@ $id=session_id();
 # --------------------------------
 # MYSQL CONNECT
 $conn=ice_mysql_connect();
+$cIce->clear();
 $cIce->get_sets();
 # --------------------------------
 # INIT OBJECT 
+$sdt="";
+if (array_key_exists("noc",$_GET)){
+    $cn="admin";
+    $cIce->openClient();
+    $cIce->get_status(1);
+}else{//CONNECT
 $cn=$cIce->connectClient();#connect dIce daemon & connect frk port
+$cIce->get_status(1);
+if ($cn[0]=="dIce_ok"){
+    if ($cn[1]!="frk_ok"){
+        $cn=$cIce->connectClient();
+        $cIce->get_status(1);
+    }
+    if ($cn[1]=="frk_ok"){
+        $sdt="<br/>";
+        $cIce->openClient();
+        $_cd=$cIce->Client->_set_date();
+        $_ct=$cIce->Client->_set_time();
+        #$_cd=$cIce->Client->_get_info('date');
+        #$cIce->status_long;
+        $sdt="<br/>Синхронизация времени [ $_cd $_ct ]";
+        if (array_key_exists("repair",$_GET)){
+            $cIce->Client->_continue(); sleep(1);
+            $cIce->Client->_continue(); sleep(1);
+            $cIce->Client->_continue(); sleep(1);
+            $cIce->Client->_cancel_check(); sleep(1);
+            $cIce->Client->_cancel_check(); sleep(1);
+            $cIce->Client->_cancel_check(); sleep(1);
+        }
+    }else{$error=True;}
+} else {$error=True;}
+}//CONNECT
 # --------------------------------
 if ($conn) {$my='mysql_ok';}else{$my='mysql_error';$error=True;}
-$cIce->get_status(1);
-$cIce->clear();
-$cIce->sets_to_global();
+if ($cn[1]) {$my='mysql_ok';}else{$my='mysql_error';$error=True;}
+//$cIce->sets_to_global();
+$cIce->write_trsc(111,'',0,0,0);
 $_SESSION['vkbd']=0;
+
 ?>
 
 <html>
@@ -46,10 +80,12 @@ $_SESSION['vkbd']=0;
  <hr width=400 align=left> </hr>
 <div class="info">
 <? 
-    echo "[$ip] [$user] [$my] [$cn[0]] [$cn[1]]";
+    echo "[$ip] [$user] [$my] [$cn[0]] [$cn[1]] [$cn[2]]";
     echo " [".$cIce->ice_status."]";
+    echo "$sdt";
 ?>
 </div>
+
 <?
   if ($error){
   echo "<div class='warning'>";

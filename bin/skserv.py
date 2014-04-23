@@ -1,5 +1,8 @@
 #!/usr/bin/python
-# Simple multithreading socket server v 1.0
+# -*- coding: utf-8
+# Simple multithreading socket server v 1.3.0033.0033.003
+# max buffer 4k, encode/decode utf8
+# separator \t
 import string
 import sys
 import socket
@@ -8,12 +11,14 @@ import time
 
 msg_ok='ok'
 msg_err='err'
+separator="\t"
+
+MAX_BUFFER=16000
 
 class SockSrv:
     def __init__(self,ip,port,maxc):
         if ip=='':
-            ip='127.0.0.1'
-
+            ip=''
         self.soc = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.soc.bind((ip,port))
         self.soc.listen(maxc)
@@ -41,7 +46,7 @@ class SockSrv:
 
 class CThread(threading.Thread):
     def __init__(self,socksrv,c):
-        self.MAXSIZE = 2048
+        self.MAXSIZE = MAX_BUFFER
         threading.Thread.__init__(self)
         self.conn = c
         self.stopIt=False
@@ -50,8 +55,9 @@ class CThread(threading.Thread):
 
     def mrecv(self):
         data = self.conn.recv(self.MAXSIZE)
+        #data=data.decode('utf8')
         s = data.rstrip("\r\n")
-        self.arr = s.split(";")
+        self.arr = s.split(separator)
         return data
 
     def run(self):
@@ -61,8 +67,7 @@ class CThread(threading.Thread):
             if not data:
                 self.stopIt=True
                 break
-            #print 'recieved->',data
-            #print self.arr
+            print data
             self.socksrv.process(self,self.arr)
         self.conn.close()
         self.socksrv.connections=self.socksrv.connections-1
@@ -70,21 +75,30 @@ class CThread(threading.Thread):
 
     def msend(self,msg):
         if len(msg)<=self.MAXSIZE and len(msg)>0:
+            try:
+                m=msg.encode('utf8')
+            except:
+                m=msg
+            msg=m
+
             self.conn.send(msg)
 
 
 class SockClient:
     def __init__(self,ip,port):
-        self.MAXSIZE = 2048
+        self.MAXSIZE = MAX_BUFFER
         if ip=='':
             ip='127.0.0.1'
+        print ip+":"+str(port)
         self.soc = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.soc.connect((ip,port))
+        print self.soc
+        print self.soc.connect((ip,port))
 
     def mrecv(self):
         data = self.soc.recv(self.MAXSIZE)
+        #data=data.decode('utf8')
         s = data.rstrip("\r\n")
-        self.arr = s.split(";")
+        self.arr = s.split(separator)
         return data
 
     def msend(self,msg):

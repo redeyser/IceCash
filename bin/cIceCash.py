@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
-# IceCash client v 1.0
+# IceCash client v 1.3.003
 import string
 import skserv
 import sys
 import time
+import os
 
 const_error=1
 const_error_connect=2
@@ -26,20 +27,25 @@ class IceClient(skserv.SockClient):
                 break
         return 1
 
-def connect():
+def connect(addr):
     global ic
     try:
-        ic=IceClient('localhost',7171)
+        ic=IceClient(addr,7171)
     except:
         print const_error_connect 
         sys.exit(const_error_connect)
 
 run=0
 times=0
+if os.sys.argv.__len__()<2:
+    addr='localhost'
+else:
+    addr=os.sys.argv[1]
+print "connect "+addr
 while not run:
     if times==3:
         break
-    connect()
+    connect(addr)
     run=ic.run()
     if run or times==3:
         break
@@ -49,3 +55,5 @@ while not run:
 if not run:
     print const_error_wait 
     sys.exit(const_error_wait)
+
+

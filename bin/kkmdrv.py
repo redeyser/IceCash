@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
+# version 1.1.4
 """
 Shtrikh FR-K Python interface
 =================================================================
@@ -26,7 +27,6 @@ CHANGELOG
   0.04    >>> int((float('17451.46')*10)*10)
           1745145
           Now work with fload same as string
-FOR ICE CASH v1.0.1
 """
 
 VERSION = 0.04
@@ -527,7 +527,7 @@ class KKM:
             btaxes = "%s%s%s%s" % tuple(map(lambda x: chr(x), taxes))
             btext  = text.encode('cp1251').ljust(40,chr(0x0))
             self.__sendCommand(0x85,self.password+bsumma+bsumma2+bsumma3+bsumma4+bsale+btaxes+btext)
-            time.sleep(0.1) # DOOM 
+            time.sleep(0.5) # DOOM поставил а потом убрал
             a = self.__readAnswer()
             cmd,errcode,data = (a['cmd'],a['errcode'],a['data'])
             self.OP_CODE    = ord(data[0])
@@ -708,6 +708,13 @@ class KKM:
                 """Открыть ящик"""
                 #self.__clearAnswer()
                 self.__sendCommand(0x28,self.password+chr(0))
+                a = self.__readAnswer()
+                return a['errcode']
+
+        def roll(self):
+                """Протяжка"""
+                #self.__clearAnswer()
+                self.__sendCommand(0x29,self.password+chr(2)+chr(20))
                 a = self.__readAnswer()
                 return a['errcode']
 
