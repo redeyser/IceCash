@@ -1,16 +1,21 @@
+Новости:
+Скачать веб оснастку с драйвером и сервером драйвера можно тут http://icecash.ru:8181/dIceWWW.tar.bz2
+Скрипты создания mysql таблиц тут http://icecash:8181/dIceMysql.tar.bz2
+Образ диска установщика кассы на debian 6 http://icecash:8181/IceCash.iso
+redeyser@gmail.com 09/06/2015
+
 IceCash v 3.014
 Драйвер штрих-м и сервер для этого драйвера.
-тут я чета попытался продемонстрировать http://www.youtube.com/watch?v=69AF7n6sxDY
+Драйвер я немного дописал.
 
+
+Это давно не обновлялось:
+-----------------------------------------------------------------
 Здесь вы найдете:
 1. Драйвер для штрих-М
 2.Сервер этого драйвера для управления фискальником и кассой.
 3.php оснастка для рабочего места кассира
 4.клиент для автоматического обмена прайсами и обновления программы.
-
-Если комуто интересно, то могу дать образ на базе debian 6.0  с настроенной и работающей системой или продемонстрировать через rdp/vnc.
-моя почта redeyser@gmail.com
-
 
 ФРК управляется драйвером kkmdrv.KKM через объект frk.frk.
 Сам frk помещается в демон dIceCash и там инициализируется.
@@ -86,87 +91,5 @@ D.parsingCmd('open_check',[0])
 D.parsingCmd('sale',[float(1),float(20.5),"PIVASIK"])
 D.parsingCmd('close_check',[float(100),float(10),float(20)])
 
-Ниже привожу скрипт по созданию базы данных mysql
 
-create database icecash;
-GRANT ALL ON IceCash.* TO icecash@'%' IDENTIFIED BY 'icecash1024';
-FLUSH PRIVILEGES;
-
-CREATE TABLE `actions` (
-  `idp` int(4) NOT NULL,
-  `idprice` int(4) NOT NULL DEFAULT '0',
-  `idt` int(4) DEFAULT '0',
-  `count` decimal(10,3) DEFAULT '1.000',
-  `countplus` decimal(10,3) DEFAULT '1.000',
-  `idtadd` int(4) DEFAULT NULL,
-  `countadd` decimal(10,3) DEFAULT '1.000',
-  `name` char(100) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8
-
-
-CREATE TABLE `discount_card` (
-  `number` varchar(24) NOT NULL,
-  `name` varchar(100) DEFAULT 'DISCOUNT CARD',
-  `text` varchar(30) DEFAULT 'discount',
-  `isclose` tinyint(1) NOT NULL DEFAULT '0',
-  `type` tinyint(1) NOT NULL DEFAULT '0',
-  `procent` decimal(5,2) NOT NULL DEFAULT '20.00',
-  PRIMARY KEY (`number`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8
-
-
-CREATE TABLE `price` (
-  `id` int(4) unsigned NOT NULL,
-  `shk` varchar(13) DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `cena` decimal(15,2) unsigned NOT NULL DEFAULT '0.00',
-  `ostatok` decimal(17,3) unsigned NOT NULL DEFAULT '0.000',
-  `sheme` smallint(2) NOT NULL DEFAULT '0',
-  `real` tinyint(1) NOT NULL DEFAULT '0',
-  `section` smallint(2) NOT NULL DEFAULT '0',
-  `max_skid` decimal(5,1) NOT NULL DEFAULT '0.0',
-  `type` tinyint(1) NOT NULL DEFAULT '0',
-  `minprice` decimal(15,2) NOT NULL DEFAULT '0.00',
-  `maxprice` decimal(15,2) NOT NULL DEFAULT '0.00',
-  `warning` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `name` (`name`,`shk`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf
-
-
-CREATE TABLE `price_shk` (
-  `id` int(4) unsigned NOT NULL,
-  `shk` varchar(13) NOT NULL DEFAULT '',
-  `name` varchar(255) NOT NULL,
-  `cena` decimal(15,2) unsigned NOT NULL DEFAULT '0.00',
-  `koef` decimal(17,3) unsigned NOT NULL DEFAULT '0.000',
-  PRIMARY KEY (`id`,`shk`,`cena`),
-  KEY `shk` (`shk`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8
-
-CREATE TABLE `sets` (
-  `name` varchar(40) NOT NULL,
-  `value` varchar(255) DEFAULT NULL,
-  KEY `name` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8
-
-CREATE TABLE `trsc` (
-  `idtrsc` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `nkassa` tinyint(2) unsigned NOT NULL,
-  `puttime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date` date NOT NULL,
-  `time` time NOT NULL,
-  `type` smallint(3) unsigned NOT NULL,
-  `nkkm` tinyint(2) unsigned NOT NULL,
-  `ncheck` int(5) unsigned DEFAULT '0',
-  `idkassir` tinyint(3) unsigned DEFAULT '1',
-  `ParamS` char(24) DEFAULT NULL,
-  `ParamI` int(11) DEFAULT NULL,
-  `ParamF1` double(8,2) DEFAULT NULL,
-  `ParamF2` double(7,3) DEFAULT NULL,
-  `ParamF3` double(8,2) DEFAULT NULL,
-  PRIMARY KEY (`nkassa`,`idtrsc`),
-  KEY `dt` (`date`,`time`),
-  KEY `puttime` (`puttime`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8
 
